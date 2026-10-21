@@ -2,7 +2,11 @@
 
 import DOMPurify from 'dompurify';
 import parse from 'html-react-parser';
-import { useEffect, useState } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
+
+const subscribe = () => () => undefined;
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 type Props = {
     html: string;
@@ -14,19 +18,17 @@ type Props = {
  * microCMSのリッチエディタコンテンツを安全に表示する
  */
 export default function SafeHtml({ html, className }: Props) {
-    const [sanitizedHtml, setSanitizedHtml] = useState<string>('');
-    const [isClient, setIsClient] = useState(false);
+    const isClient = useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 
-    useEffect(() => {
-        setIsClient(true);
+    const sanitizedHtml = useMemo(() => {
+        if (!isClient) return '';
         // DOMPurifyでサニタイズ
-        const clean = DOMPurify.sanitize(html, {
+        return DOMPurify.sanitize(html, {
             USE_PROFILES: { html: true },
             ADD_TAGS: ['iframe'], // YouTube埋め込み等を許可
             ADD_ATTR: ['allow', 'allowfullscreen', 'frameborder', 'scrolling', 'target'],
         });
-        setSanitizedHtml(clean);
-    }, [html]);
+    }, [html, isClient]);
 
     // SSR時は空を返す（ハイドレーションエラー回避）
     if (!isClient) {
