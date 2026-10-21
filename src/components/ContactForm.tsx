@@ -1,31 +1,22 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 type ContactFormProps = {
     serviceTitle?: string; // サービス詳細ページから渡されるサービス名
 };
 
 export default function ContactForm({ serviceTitle }: ContactFormProps) {
+    const defaultSubject = serviceTitle ? `【${serviceTitle}】に関するお問い合わせ` : '';
     const [formData, setFormData] = useState({
         name: '',
         email: '',
-        subject: '',
+        subject: defaultSubject,
         message: '',
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [error, setError] = useState<string | null>(null);
-
-    // serviceTitleが変更されたら件名を更新
-    useEffect(() => {
-        if (serviceTitle) {
-            setFormData((prev) => ({
-                ...prev,
-                subject: `【${serviceTitle}】に関するお問い合わせ`,
-            }));
-        }
-    }, [serviceTitle]);
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -65,7 +56,7 @@ export default function ContactForm({ serviceTitle }: ContactFormProps) {
             }
 
             setIsSubmitted(true);
-            setFormData({ name: '', email: '', subject: '', message: '' });
+            setFormData({ name: '', email: '', subject: defaultSubject, message: '' });
         } catch (err) {
             setError(err instanceof Error ? err.message : '送信中にエラーが発生しました。');
         } finally {

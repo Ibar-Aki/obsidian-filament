@@ -229,7 +229,7 @@ export default async function ServiceDetailPage({ params }: Props) {
                         </p>
                     </div>
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
-                        <ContactForm serviceTitle={service.title} />
+                        <ContactForm key={service.id} serviceTitle={service.title} />
                     </div>
                 </div>
             </section>
